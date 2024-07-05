@@ -4,13 +4,13 @@ from sklearn.preprocessing import MinMaxScaler
 
 def bce_loss(y_true, y_pred, epsilon=1e-15):
 
-    # Agregar epsilon para evitar log(0)
+    # Add epsilon to avoid log(0)
     y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
     
-    # Calcular la suma de la pérdida
+    # Compute the summatory of the loss
     summatory = np.sum(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
     
-    # Dividir por el número de ejemplos y tomar el signo negativo
+    # Divide by the number of examples and take the negative sign
     div = -1 / y_true.shape[0]
     return div * summatory
 
@@ -80,17 +80,17 @@ class NN:
     def backward(self, x, y_pred, y_true):
         m = y_true.shape[0]
 
-        # gradiente respecto salida
+        # gradient with respect to output
         d_loss_h2 = y_pred - y_true.reshape(-1, 1)
 
-        # gradiente para w2:
+        # gradient for w2
         self.gradients['W2'] = 1/m * np.dot(self.h1.T, d_loss_h2)
         self.gradients['b2'] = 1/m * np.sum(d_loss_h2, axis=0, keepdims=True)
 
-        # gradientes capa oculta
+        # hidden layer gradients
         d_loss_h1 = np.dot(d_loss_h2, self.weights['W2'].T) * self.d_sigmoid(self.z1)
 
-        # gradiente para w1
+        # gradient for w1
         self.gradients['W1'] = 1/m * np.dot(x.T, d_loss_h1)
         self.gradients['b1'] = 1/m * np.sum(d_loss_h1, axis=0, keepdims=True)
 
@@ -128,11 +128,6 @@ class Adam:
         v = self.beta2*v + (1-self.beta2)*g**2
         return v
     
-    def compute_final_values(self, m, v):
-        m = m / (1 - self.beta1**self.t)
-        v = v / (1 - self.beta2**self.t)
-        return m, v
-    
     def apply_gradients(self, m, v, lr, w):
         return w - lr*m/(np.sqrt(v) + self.epsilon)
 
@@ -161,7 +156,7 @@ def main():
 
     for epoch in range(1000):
 
-        # Reseteamos los gradientes
+        # Reset gradients
         model.reset_grads()
 
         # Forward
